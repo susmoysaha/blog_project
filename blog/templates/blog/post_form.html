@@ -1,0 +1,17 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+    <h1>New post</h1>
+
+    <form method="POST" class="post-form">
+    <center><u><h2>Welcome {{ user.username }} !!</h2></u></center>
+    {% csrf_token %}
+
+    {{form.as_p}}
+    <button type="submit" class="save btn btn-default">Save</button>
+
+    </form>
+
+
+
+{% endblock %}

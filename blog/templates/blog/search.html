@@ -1,0 +1,13 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+{% if post %}
+<h1>Search Result Found: </h1>
+{% for i in post %}
+     <h1><a href="{% url 'post_detail' pk=i.pk %}">{{ i.title }}</a></h1>
+     <p>Published on: {{ i.published_date|date:"D M Y"}}</p>
+{% endfor %}
+{%else%}
+   <h1>No result found.</h1>
+{%endif%}
+{% endblock %}

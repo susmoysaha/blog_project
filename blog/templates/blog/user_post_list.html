@@ -1,0 +1,25 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<div class="centerstage">
+
+
+    {% for post in user_post_list %}
+        <div class="post">
+          <div class="jumbotron">
+            <h1><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h1>
+            <div class="date">
+              {% ifequal post.published_date null %}
+                <p>Created on: {{ post.created_date|date:"D M Y"}}</p>
+
+              {%else%}
+                <p>Published on: {{ post.published_date|date:"D M Y"}}</p>
+                  <a href="{% url 'post_detail' pk=post.pk %}">Comments: {{ post.approve_comments.count }}</a>
+                  </div>
+              {%endifequal%}
+            </div>
+
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
