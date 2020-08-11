@@ -10,10 +10,15 @@
         <li><h3>Last Name: {{user.last_name}}</h3></li>
         <li><h3>Email Id: {{user.email}}</h3></li>
 
-        <li><h3>Profile Picture: <img src="{{ user.userprofile.profile_pic.url}}" alt="Profile Pic" height="200px" width="200px"/></h3></li>
-
+        <li><h3>Profile Picture:</h3>
+          {%if user.userprofile.profile_pic%}
+            <img src="{{ user.userprofile.profile_pic.url}}" alt="Profile Pic" height="200px" width="200px"/>
+          {%endif%}
+        </li>
         <li><h3>Portfolio Site: <a href='{{ user.userprofile.portfolio_site }}'>{{ user.userprofile.portfolio_site }}</a></h3></li>
-        <li><a href="{% url 'edit_profile' %}" >Edit</a></li>
+        <br>
+        <h3><a href="{% url 'edit_profile' %}" >Edit Profile</a></h3>
+        <h3><a href="{% url 'edit_password' %}" >Edit Password</a></h3>
       </ul>
   </div>
 

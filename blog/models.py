@@ -12,6 +12,9 @@ class Post(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     published_date = models.DateTimeField(blank=True, null=True)
 
+    def saved(self):
+        self.author = User.username()
+        self.save()
 
     def publish(self):
         self.published_date = timezone.now()
@@ -50,9 +53,9 @@ class Comment(models.Model):
 class UserProfile(models.Model):
     user=models.OneToOneField(User,on_delete=models.DO_NOTHING)
 
-    #additional
+
     portfolio_site=models.URLField(blank=True)
-    profile_pic=models.ImageField(upload_to='profile_pic',blank=True,null=True)
+    profile_pic=models.ImageField(upload_to='profile_pic',blank=True)
 
     def __str__(self):
         return self.user.username

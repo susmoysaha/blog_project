@@ -2,8 +2,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from blog.models import Post, Comment, User,UserProfile
 from django.utils import timezone
-from blog.forms import PostForm, CommentForm, UserForm, UserProfileForm,EditProfileForm
-
+from blog.forms import PostForm, CommentForm, UserForm, UserProfileForm, EditProfileForm, EditProfileFormTwo
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
 from django.views.generic import (TemplateView,ListView,
                                   DetailView,CreateView,
                                   UpdateView,DeleteView)
@@ -30,13 +31,32 @@ class UserPostListView(LoginRequiredMixin,ListView):
 class PostDetailView(DetailView):
         model = Post
 
-class CreatePostView(LoginRequiredMixin,CreateView):
-    model = Post
-    form_class=PostForm
+#class CreatePostView(LoginRequiredMixin,CreateView):
+    #login_url = '/login/'
+    #redirect_field_name = 'blog/post_detail.html'
+
+    #form_class = PostForm
+    #tance.author=request.user
+    #instance.save()
+    #del = Post
+@login_required
+def CreatePostView(request):
     login_url = '/login/'
     redirect_field_name = 'blog/post_detail.html'
+    model=Post
+    form = PostForm()
+    if request.method == "POST":
+        form= PostForm(request.POST)
+        if form.is_valid():
+            instance=form.save(commit=False)
+            instance.author=request.user
+            instance.save()
+            #return reverse("post_detail",kwargs={'pk':self.pk})
+            #return redirect('/post_detail/')
 
-
+    else:
+        form = PostForm()
+    return render(request , "blog/post_form.html" , {"form":form})
 
 
 
@@ -153,15 +173,50 @@ def profile_detail(request):
     my_detail={'user_detail':user_detail}
     return render(request,'registration/profile.html',context=my_detail)
 
+
+
+
 def edit_profile(request):
 
     if request.method=="POST":
-        form=EditProfileForm(request.POST,instance=request.user)
-        if form.is_valid():
-            form.save()
-            return redirect('profile_detail')
+        form_one=EditProfileForm(request.POST,instance=request.user)
+
+        form_two=EditProfileFormTwo(request.POST,instance=request.user.userprofile)
+        if form_one.is_valid() and form_two.is_valid():
+            user=form_one.save()
+
+            user.save()
+
+            profile=form_two.save(commit=False)
+            profile.user=user
+
+            if 'profile_pic' in request.FILES:
+                profile.profile_pic=request.FILES['profile_pic']
+
+            profile.save()
+            #update_session_auth_hash(request,form_pass.user)
+
+            return redirect('/profile_details/')
+    else:
+        form_one=EditProfileForm(instance=request.user)
+
+        form_two=EditProfileFormTwo(instance=request.user.userprofile)
+        args={'form_one':form_one,'form_two':form_two}
+        return render(request,'registration/edit_profile.html',args)
+
+def edit_password(request):
+    if request.method=="POST":
+        form_pass=PasswordChangeForm(data=request.POST,user=request.user)
+        if form_pass.is_valid():
+            form_pass.save()
+            update_session_auth_hash(request,form_pass.user)
+            return redirect('/profile_details/')
+        else:
+            form_pass=PasswordChangeForm(user=request.user)
+            args={'form_pass':form_pass}
+            return render(request,'registration/edit_password.html',args)
 
     else:
-        form=EditProfileForm(instance=request.user)
-        args={'forms':forms}
-        return render(request,'registration/edit_profile.html',args)
+        form_pass=PasswordChangeForm(user=request.user)
+        args={'form_pass':form_pass}
+        return render(request,'registration/edit_password.html',args)
